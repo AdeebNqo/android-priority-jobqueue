@@ -19,6 +19,7 @@ abstract public class BaseJob implements Serializable {
     private String groupId;
     private boolean persistent;
     private transient int currentRunCount;
+    private boolean isDone = false;
 
     protected BaseJob(boolean requiresNetwork) {
         this(requiresNetwork, false, null);
@@ -40,12 +41,14 @@ abstract public class BaseJob implements Serializable {
         this.requiresNetwork = requiresNetwork;
         this.persistent = persistent;
         this.groupId = groupId;
+        isDone = false;
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.writeBoolean(requiresNetwork);
         oos.writeObject(groupId);
         oos.writeBoolean(persistent);
+        oos.writeBoolean(isDone);
     }
 
 
@@ -53,6 +56,7 @@ abstract public class BaseJob implements Serializable {
         requiresNetwork = ois.readBoolean();
         groupId = (String) ois.readObject();
         persistent = ois.readBoolean();
+        isDone = ois.readBoolean();
     }
 
     /**
@@ -93,6 +97,18 @@ abstract public class BaseJob implements Serializable {
     abstract protected boolean shouldReRunOnThrowable(Throwable throwable);
 
     /**
+     * called when a job is not done but the UX timeout is reached.
+     */
+    abstract protected void onUXTimeoutReached();
+
+    /**
+     * returns true if job is called onRun successfully
+     */
+    protected boolean isDone() {
+        return isDone;
+    };
+
+    /**
      * Runs the job and catches any exception
      * @param currentRunCount
      * @return
@@ -106,6 +122,7 @@ abstract public class BaseJob implements Serializable {
         boolean failed = false;
         try {
             onRun();
+            isDone = true;
             if (JqLog.isDebugEnabled()) {
                 JqLog.d("finished job %s", this.getClass().getSimpleName());
             }

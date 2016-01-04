@@ -1,5 +1,8 @@
 package com.path.android.jobqueue;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import java.io.Serializable;
 
 /**
@@ -11,6 +14,7 @@ abstract public class Job extends BaseJob implements Serializable {
     private static final long serialVersionUID = 1L;
     private transient int priority;
     private transient long delayInMs;
+    private transient long timeoutUX = -1;
 
     protected Job(Params params) {
         super(params.doesRequireNetwork(), params.isPersistent(), params.getGroupId());
@@ -34,5 +38,23 @@ abstract public class Job extends BaseJob implements Serializable {
      */
     public final long getDelayInMs() {
         return delayInMs;
+    }
+
+    public void setTimeoutUX(long timeout) {
+        timeoutUX = timeout;
+    }
+
+    @Override
+    public void onAdded() {
+        if (timeoutUX != -1) {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isDone()) {
+                        onUXTimeoutReached();
+                    }
+                }
+            }, timeoutUX);
+        }
     }
 }

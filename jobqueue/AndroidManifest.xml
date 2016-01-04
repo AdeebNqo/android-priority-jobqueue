@@ -3,6 +3,10 @@
           package="com.path.android.jobqueue"
           android:versionCode="2"
           android:versionName="1.1.2">
+
+          <uses-sdk
+            android:minSdkVersion="8"/>
+
     <application android:label="">
     </application>
 </manifest>

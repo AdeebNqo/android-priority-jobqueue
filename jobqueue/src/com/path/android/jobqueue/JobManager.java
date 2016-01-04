@@ -29,6 +29,7 @@ public class JobManager implements NetworkEventProvider.Listener {
     @SuppressWarnings("FieldCanBeLocal")//used for testing
     private final long sessionId;
     private boolean running;
+    private long timeoutForImprovingUX;
 
     private final Context appContext;
     private final NetworkUtil networkUtil;
@@ -70,6 +71,7 @@ public class JobManager implements NetworkEventProvider.Listener {
         if(config.getCustomLogger() != null) {
             JqLog.setCustomLogger(config.getCustomLogger());
         }
+        timeoutForImprovingUX = config.getTimeoutForUx();
         appContext = context.getApplicationContext();
         running = true;
         runningJobGroups = new CopyOnWriteGroupSet();
@@ -144,6 +146,7 @@ public class JobManager implements NetworkEventProvider.Listener {
      */
     public long addJob(Job job) {
         //noinspection deprecation
+        job.setTimeoutUX(timeoutForImprovingUX);
         return addJob(job.getPriority(), job.getDelayInMs(), job);
     }
 

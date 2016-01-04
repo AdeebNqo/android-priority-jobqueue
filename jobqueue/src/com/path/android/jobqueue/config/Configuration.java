@@ -11,6 +11,7 @@ import com.path.android.jobqueue.network.NetworkUtil;
 import com.path.android.jobqueue.network.NetworkUtilImpl;
 import com.path.android.jobqueue.nonPersistentQueue.NonPersistentPriorityQueue;
 import com.path.android.jobqueue.persistentQueue.sqlite.SqliteJobQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link com.path.android.jobqueue.JobManager} configuration object
@@ -21,12 +22,15 @@ public class Configuration {
     public static final int DEFAULT_LOAD_FACTOR_PER_CONSUMER = 3;
     public static final int MAX_CONSUMER_COUNT = 5;
     public static final int MIN_CONSUMER_COUNT = 0;
+    public static final long TIMEOUT_FOR_UX = -1;
+
 
     private String id = DEFAULT_ID;
     private int maxConsumerCount = MAX_CONSUMER_COUNT;
     private int minConsumerCount = MIN_CONSUMER_COUNT;
     private int consumerKeepAlive = DEFAULT_THREAD_KEEP_ALIVE_SECONDS;
     private int loadFactor = DEFAULT_LOAD_FACTOR_PER_CONSUMER;
+    private long timeoutForUX = TIMEOUT_FOR_UX;
     private QueueFactory queueFactory;
     private DependencyInjector dependencyInjector;
     private NetworkUtil networkUtil;
@@ -62,6 +66,10 @@ public class Configuration {
 
     public int getMinConsumerCount() {
         return minConsumerCount;
+    }
+
+    public long getTimeoutForUx() {
+        return timeoutForUX;
     }
 
     public CustomLogger getCustomLogger() {
@@ -155,6 +163,11 @@ public class Configuration {
          */
         public Builder maxConsumerCount(int count) {
             configuration.maxConsumerCount = count;
+            return this;
+        }
+
+        public Builder timeoutUX(int time, TimeUnit units) {
+            configuration.timeoutForUX = TimeUnit.MILLISECONDS.convert(time, units);
             return this;
         }
 
